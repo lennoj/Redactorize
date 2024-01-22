@@ -1,6 +1,16 @@
 ﻿# Redactorize
 PDF Redaction Library using iText7, Tesseract and SkiaSharp
 
+## Required Dependencies
+```
+dotnet add package itext7 --version 7.1.16
+dotnet add package itext7.bouncy-castle-adapter --version 8.0.2
+dotnet add package itext7.pdfsweep --version 4.0.1
+dotnet add package SkiaSharp.NativeAssets.Linux --version 2.88.7
+dotnet add package SkiaSharp.NativeAssets.Windows --version 2.88.7
+dotnet add package TesseractOCR --version 5.3.5
+```
+
 ## Usage
 ### Obtain Text position and dimension
 `SampleGetTextPosition.cs`
