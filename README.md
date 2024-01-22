@@ -112,6 +112,36 @@ namespace SampleApp.Redactorize
 }
 ```
 
+### Redact using Regular Expression
+`SampleRedactRegEx.cs`
+```
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using Redactorize;
+using Redactorize.Redact;
+
+namespace SampleApp.Redactorize.UnitTesting
+{
+    
+    internal class SampleRedactRegEx
+    {
+        public void Start()
+        {
+            string inputFilePath = @"C:\dev\prototypes\SampleApp.Redactorize\Samples\SampleRedactRegEx.pdf";
+            string outputFilePath = @"C:\dev\prototypes\SampleApp.Redactorize\Samples\SampleRedactRegEx.pdf";
+            Redactor.Initialize(@"C:\dev\prototypes\SampleApp.Redactorize\Samples");
+
+            // Searching for Pattern 123A 123A 23A 12
+            RedactionParameter p1 = new RedactionParameter(RedactorEnums.RedactionMatchingStrategy.RegularExpression, @"(?:(\d{2,3}[A]){1,}(\d{2,3}))");
+            Redactor.Process(inputFilePath,outputFilePath , RedactorEnums.RedactionType.TextAndImage, p1, p2,p3, p4);
+        }
+    }
+}
+```
+
 ## Please make sure to follow and visit
 * [PDF Manipulation | iText7](https://github.com/itext/itext7-dotnet)
 * [PDF Redaction | PdfSweep - iText7 Add-On for PDF Redaction](https://github.com/itext/i7n-pdfsweep)
