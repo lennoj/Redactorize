@@ -1,0 +1,25 @@
+<Project Sdk="Microsoft.NET.Sdk">
+	<!--
+	<Author>
+		<Name>Jonnel ross Mendoza</Name>
+		<Email>jonnelross.mendoza@gmail.com</Email>
+		<Date>01-19-2024</Date>
+	</Author>
+	-->
+  <PropertyGroup>
+    <TargetFramework>net7.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="itext7" Version="7.1.16" />
+    <PackageReference Include="itext7.bouncy-castle-adapter" Version="8.0.2" />
+    <PackageReference Include="itext7.pdfsweep" Version="4.0.1" />
+    <PackageReference Include="SkiaSharp.NativeAssets.Linux" Version="2.88.7" />
+    <PackageReference Include="TesseractOCR" Version="5.3.5" />
+  </ItemGroup>
+  
+
+
+</Project>
