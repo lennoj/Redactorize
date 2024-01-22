@@ -1,5 +1,6 @@
 ﻿# Redactorize
-PDF Redaction Library using iText7, Tesseract and SkiaSharp
+PDF Redaction Library using iText7, Tesseract and SkiaSharp for .NET Core Application
+
 
 ## Required Dependencies
 ```
@@ -10,6 +11,7 @@ dotnet add package SkiaSharp.NativeAssets.Linux --version 2.88.7
 dotnet add package SkiaSharp.NativeAssets.Windows --version 2.88.7
 dotnet add package TesseractOCR --version 5.3.5
 ```
+
 
 ## Usage
 ### Obtain Text position and dimension
