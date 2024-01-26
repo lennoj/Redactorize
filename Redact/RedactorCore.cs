@@ -6,6 +6,7 @@ using iText.Kernel.Pdf.Canvas;
 using iText.PdfCleanup.Autosweep;
 using static Redactorize.Redact.RedactorEnums;
 using Redactorize.Redact.Events;
+using iText.PdfCleanup;
 
 namespace Redactorize.Redact
 {
@@ -63,6 +64,28 @@ namespace Redactorize.Redact
             strategy.Add(new RegexBasedCleanupStrategy(textPosition.TextValue).SetRedactionColor(ColorConstants.BLACK));
             iText.PdfCleanup.PdfCleaner.AutoSweepCleanUp(pdfDoc, strategy);
         }
+
+        //public static List<PageTextPosition> GetRedactionTextPositions(string regularExpressionString,  int pageNumber, Document doc, PdfDocument pdfDoc)
+        //{
+        //    List<PageTextPosition> pageTextPositions = new List<PageTextPosition>(); 
+        //    //iText.PdfCleanup.Autosweep.RegexBasedCleanupStrategy strat = new RegexBasedCleanupStrategy("");
+        //    iText.PdfCleanup.Autosweep.CompositeCleanupStrategy strategy = new CompositeCleanupStrategy();
+        //    strategy.Add(new RegexBasedCleanupStrategy(regularExpressionString).SetRedactionColor(ColorConstants.BLACK));
+        //    iText.PdfCleanup.Autosweep.PdfAutoSweepTools tentativeCleanup = new PdfAutoSweepTools(strategy);//(pdfDoc, strategy);
+            
+        //    IList<PdfCleanUpLocation> cleanupLocations = tentativeCleanup.GetPdfCleanUpLocations(pdfDoc);
+
+        //    foreach (PdfCleanUpLocation location in cleanupLocations)
+        //    {
+        //        pageTextPositions.Add(new PageTextPosition(
+        //                pageNumber, location.GetRegion().GetLeft(),
+        //                location.GetRegion().GetRight(),
+        //                location.GetRegion().GetWidth(),
+        //                location.GetRegion().GetHeight(),
+        //                location.
+        //            ));
+        //    }
+        //}
 
         public static void ApplyRedactionToImage(int pageNumber, Document doc, PdfDocument pdfDoc, PageTextPosition textPosition, float scaleFactorX = 1.0f, float scaleFactorY = 1.0f)
         {

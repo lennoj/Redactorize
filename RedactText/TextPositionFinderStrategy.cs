@@ -12,9 +12,11 @@ namespace Redactorize.RedactText
         public readonly string searchText = String.Empty;
         private Matrix? textMatrix;
         private List<Rectangle> Rectangle { get; set; }
+        private TextChunkBuilder @TextChunkBuilder { get; set; }
 
         public TextPositionFinderStrategy(string searchText)
         {
+            this.TextChunkBuilder = new TextChunkBuilder();
             this.searchText = searchText ?? String.Empty;
             this.Rectangle = new List<Rectangle>();
         }
@@ -26,24 +28,26 @@ namespace Redactorize.RedactText
                 Rectangle? foundRect = null;
                 TextRenderInfo renderInfo = (TextRenderInfo)data;
                 string text = renderInfo.GetText();
+                textMatrix = renderInfo.GetTextMatrix();
+                foundRect = renderInfo.GetBaseline().GetBoundingRectangle();
 
-                if (text.Contains(searchText) && searchText != String.Empty)
+                TextChunkBuilder.Add(text, foundRect);
+
+                if (TextChunkBuilder.TryBuild(searchText) && searchText != String.Empty)
                 {
-     
+                    foundRect = TextChunkBuilder.Build(searchText).First().Rectangle;
                     int indexStart = text.IndexOf(searchText);
                     textMatrix = renderInfo.GetTextMatrix();                    
-                    foundRect = renderInfo.GetBaseline().GetBoundingRectangle();
-                    string previousText = text.Substring(0, indexStart);
+                    //foundRect = renderInfo.GetBaseline().GetBoundingRectangle();
+                    //string previousText = text.Substring(0, indexStart);
                     // get the previous text width
-                    float previousTextWidth = renderInfo.GetFont().GetWidth(previousText, renderInfo.GetFontSize());
+                    //float previousTextWidth = renderInfo.GetFont().GetWidth(previousText, renderInfo.GetFontSize());
                     // get the found text width
-                    float foundTextWidth = renderInfo.GetFont().GetWidth(searchText, renderInfo.GetFontSize());
-                    // get the actual position of the found text (X-axis)
-                    float foundTextX = foundRect.GetX() + previousTextWidth;
-                    foundRect.SetWidth(foundTextWidth);
+                    //float foundTextWidth = renderInfo.GetFont().GetWidth(searchText, renderInfo.GetFontSize());
+                    // get the actual position of the found text (X-axis)                   
                     foundRect.SetHeight((float)Math.Floor(renderInfo.GetFontSize()));
-                    foundRect.SetX(foundTextX);
-                    this.Rectangle.Add(foundRect); 
+                    this.Rectangle.Add(foundRect);
+                    TextChunkBuilder.Clear();
                     return;
                 }
                 else if(searchText == String.Empty)
@@ -58,7 +62,7 @@ namespace Redactorize.RedactText
 
         public override string GetResultantText()
         {
-            return searchText;
+            return base.GetResultantText();
         }
 
         public List<Rectangle> GetResult()
