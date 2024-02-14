@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using iText.Kernel.Pdf.Canvas.Parser.Listener;
 using Redactorize.RedactText;
@@ -11,11 +12,14 @@ namespace Redactorize.Redact
 {
     internal class TextChunkBuilder
     {
+        private int @Index { get; set; }
         private List<TextChunkPosition>? TextChunks { get; }
         private TextChunkPosition? CurrentTextChunk { get; set; }
-
+        private StringBuilder StringBuilder { get; set; }   
         public TextChunkBuilder() {
-          this.TextChunks = new List<TextChunkPosition>();  
+            this.TextChunks = new List<TextChunkPosition>();  
+            this.StringBuilder = new StringBuilder();
+            this.Index = -1;
         }
 
         public List<TextChunkPosition> Build(string SearchForString)
@@ -26,74 +30,38 @@ namespace Redactorize.Redact
             if (this.TextChunks.Count == 0)
                 return new List<TextChunkPosition>();
 
-            List<TextChunkPosition> processedChunks = new List<TextChunkPosition>();
             List<TextChunkPosition> foundChunks = new List<TextChunkPosition>();
-            List<TextChunkPosition> nextChunks = new List<TextChunkPosition>();
-            List<TextChunkPosition> previousChunks = new List<TextChunkPosition>();
-            StringBuilder tempBuilder = new StringBuilder();
-            foreach (TextChunkPosition chunk in this.TextChunks)
+            string textChunkString = this.StringBuilder.ToString();
+            string regExPattern = $@"\b{Regex.Escape(SearchForString)}\b";
+            Regex regExInstance = new Regex(regExPattern, RegexOptions.IgnoreCase);
+            MatchCollection matches = regExInstance.Matches(textChunkString);
+
+            if(matches.Count > 0)
             {
-                // add the current chunk
-                tempBuilder.Append(chunk.String);
-                processedChunks.Add(chunk);
-
-                string tempBuildString = tempBuilder.ToString();
-                int markedIndex = tempBuildString.IndexOf(SearchForString);
-                // check if the string we are searching is currently within the tempBuilder
-                if (markedIndex > -1)
+                /*
+                foreach (Match match in matches)
                 {
-                    tempBuilder.Clear();
-
-                    // iterate each processed chunks
-                    foreach (TextChunkPosition processedChunk in processedChunks)
+                    if (match.Success)
                     {
-                        tempBuilder.Append(processedChunk.String);
-                        tempBuildString = tempBuilder.ToString();
-                        if (tempBuildString.Length - 1 < markedIndex)
+                        int startIndex = match.Index;
+                        int endIndex = match.Index + match.Length;
+                        List<TextChunkPosition> chunkPositions = this.TextChunks.Select(chunk => chunk)
+                                                                                .Where(chunk => chunk.Index >= startIndex && chunk.Index <= endIndex)
+                                                                                .ToList();
+                        TextChunkPosition? foundChunk = TextChunkPosition.Merge(chunkPositions);
+                        if (foundChunk != null)
                         {
-                            previousChunks.Add(processedChunk);
-                        }
-                        else
-                        {
-                            nextChunks.Add(processedChunk);
+                            foundChunks.Add(foundChunk);
                         }
                     }
-
-                    // Clear String Builder
-                    tempBuilder.Clear();
-
-                    // Build the nextChunk
-                    foreach (TextChunkPosition nextChunk in nextChunks)
-                    {
-                        tempBuilder.Append(nextChunk.String);
-                    }
-
-                    tempBuildString = tempBuilder.ToString();
-
-                    // If the SearchForString is equal to tempBuildString
-                    // create a one whole chunk
-                    if (tempBuildString.Equals(SearchForString))
-                    {
-                        TextChunkPosition? firstChunk = nextChunks.First();
-                        TextChunkPosition? lastChunk = nextChunks.Last();
-
-
-                        if (firstChunk != null && lastChunk != null)
-                        {
-                            float x = firstChunk.Rectangle.GetX();
-                            float y = firstChunk.Rectangle.GetY();
-                            float w = lastChunk.Rectangle.GetX() - x + lastChunk.Rectangle.GetWidth();
-                            float h = lastChunk.Rectangle.GetY() - y + lastChunk.Rectangle.GetHeight();
-                            iText.Kernel.Geom.Rectangle r = new iText.Kernel.Geom.Rectangle(x, y, w, h);
-
-                            TextChunkPosition wholeWordChunk = new TextChunkPosition(tempBuildString, r);
-                            foundChunks.Add(wholeWordChunk);
-                        }
-                    }
-
                 }
-                
+                */
+                foreach (Match match in matches)
+                {
+                    foundChunks.Add(new TextChunkPosition(match.Value, new iText.Kernel.Geom.Rectangle(0, 0, 0, 0), match.Index));
+                }
             }
+          
 
             return foundChunks;
         }
@@ -106,82 +74,49 @@ namespace Redactorize.Redact
             if (this.TextChunks.Count == 0)
                 return false;
 
-            List<TextChunkPosition> processedChunks = new List<TextChunkPosition>();
             List<TextChunkPosition> foundChunks = new List<TextChunkPosition>();
-            List<TextChunkPosition> nextChunks = new List<TextChunkPosition>();
-            List<TextChunkPosition> previousChunks =  new List<TextChunkPosition>();
-            StringBuilder tempBuilder = new StringBuilder();
-            foreach (TextChunkPosition chunk in this.TextChunks)
+            string textChunkString = this.StringBuilder.ToString();
+            string regExPattern = $@"\b{Regex.Escape(SearchForString)}\b";
+            Regex regExInstance = new Regex(regExPattern, RegexOptions.IgnoreCase);
+            MatchCollection matches = regExInstance.Matches(textChunkString);
+
+            if (matches.Count > 0)
             {
-                // add the current chunk
-                tempBuilder.Append(chunk.String);
-                processedChunks.Add(chunk);
-
-                string tempBuildString = tempBuilder.ToString();
-                int markedIndex = tempBuildString.IndexOf(SearchForString);
-                // check if the string we are searching is currently within the tempBuilder
-                if (markedIndex > -1)
+                /*
+                foreach (Match match in matches)
                 {
-                    tempBuilder.Clear();
-                    
-                    // iterate each processed chunks
-                    foreach (TextChunkPosition processedChunk in processedChunks)
+                    if (match.Success)
                     {
-                        tempBuilder.Append(processedChunk.String);
-                        tempBuildString = tempBuilder.ToString();
-                        if (tempBuildString.Length - 1  < markedIndex)
+                        int startIndex = match.Index;
+                        int endIndex = match.Index + match.Length;
+                        List<TextChunkPosition> chunkPositions = this.TextChunks.Select(chunk => chunk)
+                                                                                .Where(chunk => chunk.Index >= startIndex && chunk.Index <= endIndex)
+                                                                                .ToList();
+                        TextChunkPosition? foundChunk = TextChunkPosition.Merge(chunkPositions);
+                        if (foundChunk != null)
                         {
-                            previousChunks.Add(processedChunk);
+                            foundChunks.Add(foundChunk);
                         }
-                        else
-                        {
-                            nextChunks.Add(processedChunk);
-                        }                       
                     }
-
-                    // Clear String Builder
-                    tempBuilder.Clear();
-
-                    // Build the nextChunk
-                    foreach (TextChunkPosition nextChunk in nextChunks)
-                    {
-                        tempBuilder.Append(nextChunk.String);
-                    }
-
-                    tempBuildString = tempBuilder.ToString();
-
-                    // If the SearchForString is equal to tempBuildString
-                    // create a one whole chunk
-                    if (tempBuildString.Equals(SearchForString))
-                    {
-                        TextChunkPosition? firstChunk = nextChunks.First();
-                        TextChunkPosition? lastChunk = nextChunks.Last();
-
-                        if(firstChunk != null && lastChunk != null)
-                        {
-                            float x = firstChunk.Rectangle.GetX();
-                            float y = firstChunk.Rectangle.GetY();
-                            float w = lastChunk.Rectangle.GetX() - x + lastChunk.Rectangle.GetWidth();
-                            float h = lastChunk.Rectangle.GetY() - y + lastChunk.Rectangle.GetHeight();
-                            iText.Kernel.Geom.Rectangle r = new iText.Kernel.Geom.Rectangle(x,y,w,h);
-
-                            TextChunkPosition wholeWordChunk = new TextChunkPosition(tempBuildString, r);
-                            foundChunks.Add(wholeWordChunk);
-                        }
-
-                   
-                    }
-                   
                 }
-               
+                */
+                foreach (Match match in matches)
+                {
+                    foundChunks.Add(new TextChunkPosition(match.Value, new iText.Kernel.Geom.Rectangle(0, 0, 0, 0), match.Index));
+                }
             }
 
             return foundChunks.Count > 0;
         }
 
-        public TextChunkPosition Add(string text, iText.Kernel.Geom.Rectangle rect)
+        public TextChunkPosition Add(string text, iText.Kernel.Geom.Rectangle rect, int index)
         {
-            this.CurrentTextChunk = new TextChunkPosition(text, rect);
+            if (this.Index == -1)
+                this.Index = 0;
+
+            this.Index += text.Length;
+            this.CurrentTextChunk = new TextChunkPosition(text, rect, index);
+            this.StringBuilder.Append(text);
             this.TextChunks?.Add(this.CurrentTextChunk);
             return this.CurrentTextChunk;
         }

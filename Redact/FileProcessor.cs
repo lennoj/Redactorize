@@ -1,5 +1,6 @@
 ﻿using Redactorize.Redact;
 using iText.Kernel.Pdf;
+using TesseractOCR.Renderers;
 
 namespace Redactorize.Redact
 {
@@ -46,24 +47,62 @@ namespace Redactorize.Redact
             }
         }
 
+
         public async Task<List<PageTextPosition>> FindText(string textToFind , RedactorEnums.RedactionMatchingStrategy findType = RedactorEnums.RedactionMatchingStrategy.FixedPhrase)
         {
+            DateTime startDateTime = DateTime.Now;
+            DateTime endDateTime = DateTime.Now;
+
             List<PageTextPosition> returnList = new List<PageTextPosition>();
-            List<Task<List<PageTextPosition>>> tasks = new List<Task<List<PageTextPosition>>>();
+            List<Task> tasks = new List<Task>();
             if (this.PageProcessors == null)
                 throw new Exception("No PDF file was loaded yet.");
 
+            Action<List<PageTextPosition>> onCompleteCallBack = (List<PageTextPosition> result) =>
+            {
+                returnList.AddRange(result);
+            };
+
+            /*
             foreach (BasePageProcessor pageProcessor in this.PageProcessors)
             {
-                tasks.Add(pageProcessor.FindText(textToFind, findType));
+                if(pageProcessor.GetType() == typeof(PageTextProcessor))
+                {
+                    Task task = pageProcessor.FindTextAsync(textToFind, findType, onCompleteCallBack);
+                    tasks.Add(task);
+                }   
+                else if(pageProcessor.GetType() == typeof(PageImageProcessor))
+                {
+                    Task task = pageProcessor.FindTextAsync(textToFind, findType, onCompleteCallBack);
+                    tasks.Add(task);
+                }                                
             }
+            */
 
-            List<PageTextPosition>[] results = await Task.WhenAll(tasks);
-            foreach (List<PageTextPosition> taskResult in results)
+            foreach (BasePageProcessor pageProcessor in this.PageProcessors)
             {
-                returnList.AddRange(taskResult);
+                if (pageProcessor.GetType() == typeof(PageTextProcessor))
+                {
+                    List<PageTextPosition> result = pageProcessor.FindText(textToFind, findType).Result;
+                    returnList.AddRange(result);
+                }
+                else if (pageProcessor.GetType() == typeof(PageImageProcessor))
+                {
+                    List<PageTextPosition> result = pageProcessor.FindText(textToFind, findType).Result;
+                    returnList.AddRange(result);
+                }
             }
 
+            //await Task.WhenAll(tasks);
+            //List<PageTextPosition>[] results = await Task.WhenAll(tasks);
+            //foreach (List<PageTextPosition> taskResult in results)
+            //{
+            //    returnList.AddRange(taskResult);
+            //}
+
+            endDateTime = DateTime.Now;
+            TimeSpan elapseTime = endDateTime - startDateTime;
+            Console.WriteLine(@$"FileProcessor:FindText Completed => Start:{startDateTime.ToString()}|End:{endDateTime.ToString()}|Duration:{elapseTime}");
             return returnList;
         }
 

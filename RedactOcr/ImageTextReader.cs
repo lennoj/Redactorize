@@ -81,7 +81,9 @@ namespace Redactorize.RedactOcr
                     Rect rectLine = word.BoundingBox.Value;
                     float x = rectLine.X1;
                     float y = rectLine.Y1;
-                    OCRTextWord oCRWord = new OCRTextWord((int)x, (int)y, rectLine.Width, rectLine.Height, word.Text, oCRTextLine);
+                    int fontSize = word.FontProperties.PointSize;
+                    int newWidth = fontSize * word.Text.Length;
+                    OCRTextWord oCRWord = new OCRTextWord((int)x, (int)y, newWidth, rectLine.Height, word.Text, oCRTextLine);
                     //ExtractChars(word, oCRWord);
                     
                     oCRTextLine.Words.Add(oCRWord);

@@ -62,6 +62,22 @@ namespace Redactorize.Redact
             this.FileProcessor = null;
             this.PdfPage = null;
         }
+
+        public override Task FindTextAsync(string textToFind, RedactorEnums.RedactionMatchingStrategy findType = RedactorEnums.RedactionMatchingStrategy.FixedPhrase, Action<List<PageTextPosition>>? onCompleted = null)
+        {
+            return Task.Run(async () =>
+            {
+                DateTime startDateTime = DateTime.Now;
+                DateTime endDateTime = DateTime.Now;
+                List<PageTextPosition> results = await this.FindText(textToFind, findType);
+                if (onCompleted != null)
+                    onCompleted(results);
+
+                endDateTime = DateTime.Now;
+                TimeSpan elapseTime = endDateTime - startDateTime;
+                Console.WriteLine(@$"Text:Worker Completed => Start:{startDateTime.ToString()}|End:{endDateTime.ToString()}|Duration:{elapseTime}");
+            });
+        }
     }
 
 }

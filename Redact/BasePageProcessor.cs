@@ -20,6 +20,9 @@ namespace Redactorize.Redact
         public abstract Task<List<PageTextPosition>> FindText(string textToFind, 
             RedactorEnums.RedactionMatchingStrategy findType = RedactorEnums.RedactionMatchingStrategy.FixedPhrase);
 
+        public abstract Task FindTextAsync(string textToFind,
+         RedactorEnums.RedactionMatchingStrategy findType = RedactorEnums.RedactionMatchingStrategy.FixedPhrase, Action<List<PageTextPosition>>? onCompleted = null);
+
         public static List<string> FindTextUsingRegEx(string textString, string regExPattern)
         {
             List<string> foundText = new List<string>();
